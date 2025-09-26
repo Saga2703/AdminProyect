@@ -1,8 +1,10 @@
-import 'package:appnativa/settings/custom_scaffold.dart';
 import 'package:flutter/material.dart';
 
-// No es necesario importar 'dart:io' y 'dart:typed_data' si no se usan.
-// Tampoco se usa LoginScreen aquí, se navega por ruta nombrada.
+// Definimos los colores del diseño para reutilizarlos fácilmente
+const Color kDarkGreen = Color(0xFF0A5C48);
+const Color kLightGreen = Color(0xFFC4E4C6);
+const Color kBackgroundGreen = Color(0xFFF0F7F1);
+const Color kGreyText = Color(0xFFB0D0B2);
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -14,34 +16,26 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formSignupKey = GlobalKey<FormState>();
 
-  // <-- BUENA PRÁCTICA: Agregamos controladores para poder leer los datos
+  // Solo dejamos los controladores que vamos a usar
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _githubController = TextEditingController();
-  final _phoneController = TextEditingController();
-  
-  // <-- LÓGICA MEJORADA: El checkbox debería empezar desmarcado
-  bool _agreePersonalData = false;
-  // <-- UX MEJORADA: Para ocultar/mostrar la contraseña
+
   bool _isPasswordObscured = true;
 
   @override
   void dispose() {
-    // <-- BUENA PRÁCTICA: Liberar los controladores
+    // Liberamos los controladores
     _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _githubController.dispose();
-    _phoneController.dispose();
     super.dispose();
   }
 
-  // --- Funciones de Validación (con Null Safety corregido) ---
+  // --- Funciones de Validación (Ajustadas) ---
 
   String? validateEmail(String? email) {
     RegExp emailRegex = RegExp(r'^[\w\.-]+@[\w-]+\.\w{2,3}(\.\w{2,3})?$');
-    // <-- CORRECCIÓN: Usamos '??' para evitar el error si el email es nulo
     final isEmailValid = emailRegex.hasMatch(email ?? '');
     if (!isEmailValid) {
       return 'Por favor ingresa un email válido';
@@ -49,56 +43,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  String? validatePhone(String? phone) {
-    RegExp phoneRegex = RegExp(r'^(?:[+0]9)?[0-9]{10}$'); // <-- Ajustado a 10 dígitos comúnmente
-    final isPhoneValid = phoneRegex.hasMatch(phone ?? '');
-    if (!isPhoneValid) {
-      return 'Por favor ingresa un número de teléfono válido';
+  String? validatePassword(String? password) {
+    if (password == null || password.isEmpty) {
+      return 'Por favor ingresa una contraseña';
+    }
+    if (password.length < 6) {
+      return 'La contraseña debe tener al menos 6 caracteres.';
     }
     return null;
   }
   
-  String? hasValidUrl(String? url) {
-    // <-- CORRECCIÓN: 'new' es obsoleto y el patrón se puede mejorar
-    RegExp regExp = RegExp(
-        r'^(?:http|https)://(?:www\.)?github\.com/([a-zA-Z0-9_-]+)/?$',
-        caseSensitive: false); // <-- Regex más específico para un perfil de GitHub
-
-    // <-- CORRECCIÓN: Manejo de nulos más seguro y limpio
-    if (url == null || url.isEmpty) {
-      return 'Por favor ingresa tu URL de GitHub';
-    } else if (!regExp.hasMatch(url)) {
-      return 'Por favor ingresa una URL de GitHub válida';
-    }
-    return null;
-  }
-
-  String? validatePassword(String? password) {
-    // <-- CORRECCIÓN: Lógica simplificada y segura
-    if (password == null || password.isEmpty) {
-      return 'Por favor ingresa una contraseña';
-    }
-    RegExp regex = RegExp(
-        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!.,@#\$&*~]).{6,}$');
-    if (!regex.hasMatch(password)) {
-      return 'Debe tener Mín/Mayús, número, símbolo y 6+ chars.';
-    }
-    return null;
-  }
-
-  // <-- REFACTORIZACIÓN: Función para no repetir el InputDecoration
-  InputDecoration _buildInputDecoration(String label, String hint, {Widget? suffixIcon}) {
+  // Función para construir la decoración de los campos de texto
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    Widget? suffixIcon,
+  }) {
     return InputDecoration(
-      label: Text(label),
-      hintText: hint,
-      hintStyle: const TextStyle(color: Colors.black26),
+      hintText: hintText,
+      hintStyle: TextStyle(color: kDarkGreen.withOpacity(0.6)),
+      filled: true,
+      fillColor: kLightGreen,
+      contentPadding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 20.0),
       border: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.black12),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.black12),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide.none,
       ),
       suffixIcon: suffixIcon,
     );
@@ -106,191 +82,196 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      child: Column(
-        children: [
-          const Expanded(
-            flex: 1,
-            child: SizedBox(height: 1),
-          ),
-          Expanded(
-            flex: 7,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40.0),
-                  topRight: Radius.circular(40.0),
+    return Scaffold(
+      backgroundColor: kBackgroundGreen,
+      // SafeArea para evitar que los elementos se superpongan con la barra de estado
+      body: SafeArea(
+        child: Column(
+          children: [
+            // --- SECCIÓN SUPERIOR PERSONALIZADA ---
+            _buildTopBar(),
+
+            // --- SECCIÓN DEL FORMULARIO ---
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                decoration: const BoxDecoration(
+                  color: kDarkGreen,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(40.0),
+                    topRight: Radius.circular(40.0),
+                  ),
                 ),
-              ),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formSignupKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // <-- ERROR CRÍTICO CORREGIDO: Todos los campos del formulario deben ir DENTRO de esta lista 'children'
-                      Text(
-                        'Registro',
-                        style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.deepPurpleAccent,
-                        ),
-                      ),
-                      const SizedBox(height: 40.0),
-
-                      // Nombre completo
-                      TextFormField(
-                        controller: _fullNameController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Por favor ingresa tu nombre completo';
-                          }
-                          return null;
-                        },
-                        decoration: _buildInputDecoration('Nombre completo', 'Ingresa tu nombre completo'),
-                      ),
-                      const SizedBox(height: 25.0),
-
-                      // Email
-                      TextFormField(
-                        controller: _emailController,
-                        validator: validateEmail,
-                        decoration: _buildInputDecoration('Email', 'Ingresa tu Email'),
-                      ),
-                      const SizedBox(height: 25.0),
-
-                      // Contraseña
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: _isPasswordObscured, // <-- UX MEJORADA
-                        validator: validatePassword,
-                        decoration: _buildInputDecoration(
-                          'Contraseña',
-                          'Ingresa tu contraseña',
-                          // <-- UX MEJORADA: Icono para mostrar/ocultar contraseña
-                          suffixIcon: IconButton(
-                            icon: Icon(_isPasswordObscured ? Icons.visibility : Icons.visibility_off),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordObscured = !_isPasswordObscured;
-                              });
-                            },
+                // SingleChildScrollView para evitar desbordamiento cuando aparece el teclado
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formSignupKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 40.0),
+                        const Text(
+                          'Crea una nueva\ncuenta',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 25.0),
-
-                      // Github
-                      TextFormField(
-                        controller: _githubController,
-                        validator: hasValidUrl,
-                        decoration: _buildInputDecoration('GitHub', 'Ingresa tu perfil de GitHub'),
-                      ),
-                      const SizedBox(height: 25.0),
-
-                      // Teléfono
-                      TextFormField(
-                        controller: _phoneController,
-                        validator: validatePhone,
-                        keyboardType: TextInputType.phone,
-                        maxLength: 10,
-                        decoration: _buildInputDecoration('Teléfono', 'Ingresa tu teléfono'),
-                      ),
-                      const SizedBox(height: 25.0),
-
-                      // Checkbox
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _agreePersonalData,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                // <-- CORRECCIÓN: Manejo de nulo seguro
-                                _agreePersonalData = value ?? false;
-                              });
-                            },
-                            activeColor: Colors.deepPurple,
-                          ),
-                          // <-- Para que el texto se ajuste si no cabe en una línea
-                          const Expanded(
-                            child: Text.rich(
-                              TextSpan(
-                                text: 'Acepto el uso de mis ',
-                                style: TextStyle(color: Colors.black45),
-                                children: [
-                                  TextSpan(
-                                    text: 'datos personales',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.deepPurple,
-                                    ),
+                        const SizedBox(height: 10.0),
+                        
+                        // Texto para navegar a la pantalla de inicio de sesión
+                        GestureDetector(
+                           onTap: () {
+                              // Navegar a la pantalla de login (asegúrate de tener una ruta llamada '/login')
+                              Navigator.pushNamed(context, '/login');
+                           },
+                          child: const Text.rich(
+                            TextSpan(
+                              text: 'Si ya estas registrado ',
+                              style: TextStyle(color: kGreyText),
+                              children: [
+                                TextSpan(
+                                  text: 'inicia sesion aqui',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: kLightGreen, // Un color que resalte
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: kLightGreen,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 25.0),
+                        ),
+                        const SizedBox(height: 40.0),
 
-                      // Botón de Registrarse
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // <-- MEJORA: Comprobamos nulabilidad antes de validar
-                            if (_formSignupKey.currentState?.validate() ?? false) {
-                              if (_agreePersonalData) {
-                                // Si todo es válido, aquí puedes leer los datos:
-                                print('Nombre: ${_fullNameController.text}');
-                                print('Email: ${_emailController.text}');
+                        // Campo Nombre
+                        const Text('NOMBRE', style: TextStyle(color: kGreyText, letterSpacing: 1.2)),
+                        const SizedBox(height: 8.0),
+                        TextFormField(
+                          controller: _fullNameController,
+                          style: const TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor ingresa tu nombre completo';
+                            }
+                            return null;
+                          },
+                          decoration: _buildInputDecoration(hintText: 'Anahi Ramirez'),
+                        ),
+                        const SizedBox(height: 25.0),
 
+                        // Campo Email
+                        const Text('EMAIL', style: TextStyle(color: kGreyText, letterSpacing: 1.2)),
+                        const SizedBox(height: 8.0),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                           style: const TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
+                          validator: validateEmail,
+                          decoration: _buildInputDecoration(hintText: 'anahi@gmail.com'),
+                        ),
+                        const SizedBox(height: 25.0),
+                        
+                        // Campo Contraseña
+                        const Text('CONTRASEÑA', style: TextStyle(color: kGreyText, letterSpacing: 1.2)),
+                        const SizedBox(height: 8.0),
+                        TextFormField(
+                          controller: _passwordController,
+                           style: const TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
+                          obscureText: _isPasswordObscured,
+                          validator: validatePassword,
+                          decoration: _buildInputDecoration(
+                            hintText: '******',
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordObscured ? Icons.visibility : Icons.visibility_off,
+                                color: kDarkGreen.withOpacity(0.6),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordObscured = !_isPasswordObscured;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40.0),
+
+                        // Botón de Registrarse
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (_formSignupKey.currentState?.validate() ?? false) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text('Procesando datos...')),
                                 );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Por favor acepta el tratamiento de datos')),
-                                );
+                                // Aquí puedes leer los datos con:
+                                // _fullNameController.text
+                                // _emailController.text
+                                // _passwordController.text
                               }
-                            }
-                          },
-                          child: const Text('Registrarse'),
-                        ),
-                      ),
-                      const SizedBox(height: 30.0),
-
-                      // Navegación a Login
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            '¿Ya tienes una cuenta? ',
-                            style: TextStyle(color: Colors.black45),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              // <-- BUENA PRÁCTICA: Usar rutas nombradas
-                              Navigator.pushNamed(context, '/login');
                             },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kLightGreen,
+                              foregroundColor: kDarkGreen,
+                              padding: const EdgeInsets.symmetric(vertical: 18.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                            ),
                             child: const Text(
-                              'Iniciar Sesión',
+                              'Registrarme',
                               style: TextStyle(
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.deepPurple,
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    ], // <-- FIN DE LA LISTA 'children'
+                        ),
+                        const SizedBox(height: 30.0),
+                      ],
+                    ),
                   ),
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget para construir la barra superior
+  Widget _buildTopBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Icon(Icons.menu, color: kDarkGreen, size: 30),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              color: kDarkGreen,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Simula el logo con un ícono, reemplázalo con tu Image.asset
+                Image.asset('assets/logo_nativa.png', height: 24, width: 24), // Asegúrate de tener tu logo en assets
+                const SizedBox(width: 8),
+                const Text(
+                  'Hola!',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
           ),
         ],
