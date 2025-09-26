@@ -262,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Simula el logo con un ícono, reemplázalo con tu Image.asset
-                Image.asset('assets/logo_nativa.png', height: 24, width: 24), // Asegúrate de tener tu logo en assets
+                Image.asset('assets/2.png', height: 24, width: 24), // Asegúrate de tener tu logo en assets
                 const SizedBox(width: 8),
                 const Text(
                   'Hola!',
