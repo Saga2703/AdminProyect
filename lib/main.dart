@@ -1,4 +1,3 @@
-import 'package:appnativa/screens/login.dart';
 import 'package:appnativa/screens/login2.dart';
 import 'package:appnativa/screens/register.dart';
 import 'package:appnativa/screens/welcomeScreen.dart';
