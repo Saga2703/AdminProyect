@@ -53,12 +53,14 @@ class WelcomeScreen extends StatelessWidget {
           Positioned(bottom: 140, left: 50, child: _hojaDecorativa(55, 0.1)),
           Positioned(bottom: 50, right: 20, child: _hojaDecorativa(60, -0.1)),
 
-          // Hoja grande decorativa (reubicada para no tapar texto)
+          // Hoja grande decorativa
           Positioned(
             top: 120,
             left: size.width * 0.25,
-            child: Image.asset("assets/hoja1.png",
-                width: 200), // Asegúrate de tener esta imagen en assets
+            child: Image.asset(
+              "assets/hoja1.png",
+              width: 200,
+            ),
           ),
 
           // Contenido principal
@@ -68,17 +70,40 @@ class WelcomeScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 40),
 
-                  // Texto estilizado como logo
-                  const Text(
-                    "Nativa",
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF005f46),
-                      fontFamily: 'Georgia',
-                      letterSpacing: 2,
+                  // LOGO con texto encima (texto centrado y un poco más abajo)
+                  SizedBox(
+                    width: 180,
+                    height:
+                        180, // fija una altura para que el Align funcione de forma consistente
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(
+                          "assets/hoja2.png",
+                          width: 180,
+                          height: 180,
+                          fit: BoxFit.contain,
+                        ),
+                        // Mueve el texto hacia abajo dentro del logo sin que choque
+                        const Align(
+                          alignment: Alignment(0,
+                              0.38), // 0 = centrado, 1 = abajo. Ajusta si hace falta.
+                          child: Text(
+                            "Nativa",
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF005f46),
+                              fontFamily:
+                                  'serif', // asegúrate de haber agregado la fuente en pubspec.yaml
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
 
                   // Texto de bienvenida
@@ -93,16 +118,24 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 40),
 
-                  // Botones - pasa el contexto correctamente
+                  // Botones
                   _botonPrincipal(
-                      context, "Iniciar sesión", const Color(0xFF065F46), () {
-                    Navigator.pushNamed(context, '/login');
-                  }),
+                    context,
+                    "Iniciar sesión",
+                    const Color(0xFF065F46),
+                    () {
+                      Navigator.pushNamed(context, '/login');
+                    },
+                  ),
                   const SizedBox(height: 15),
                   _botonPrincipal(
-                      context, "Registrarse", const Color(0xFF10B981), () {
-                    Navigator.pushNamed(context, '/register');
-                  }),
+                    context,
+                    "Registrarse",
+                    const Color(0xFF10B981),
+                    () {
+                      Navigator.pushNamed(context, '/register');
+                    },
+                  ),
                 ],
               ),
             ),
@@ -116,12 +149,14 @@ class WelcomeScreen extends StatelessWidget {
   Widget _hojaDecorativa(double size, double angle) {
     return Transform.rotate(
       angle: angle,
-      child: Image.asset("assets/hoja1.png",
-          width: size), // Asegúrate de tener esta imagen en assets
+      child: Image.asset(
+        "assets/hoja1.png",
+        width: size,
+      ),
     );
   }
 
-  // Botón estilizado - recibe BuildContext como primer parámetro
+  // Botón estilizado
   Widget _botonPrincipal(
       BuildContext context, String texto, Color color, VoidCallback onPressed) {
     return SizedBox(
