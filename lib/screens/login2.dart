@@ -64,12 +64,11 @@ class _LoginScreen2State extends State<LoginScreen2> {
             // --- SECCIÓN SUPERIOR PERSONALIZADA (AJUSTADA) ---
             _buildTopBar(),
 
-            // --- SECCIÓN DEL FORMULARIO (CENTRADA) ---
-            // ¡CAMBIO PRINCIPAL! Usamos Expanded + Center para centrar el formulario
-            // en el espacio restante, sin que ocupe toda la pantalla.
+            // --- SECCIÓN DEL FORMULARIO (derechha) ---
+            
             Expanded(
               child: Align(
-                alignment: Alignment.centerRight,
+                alignment: Alignment.bottomRight,
                 child: Container(
                   // Limitamos el ancho máximo para pantallas muy grandes (opcional pero bueno)
                   constraints: const BoxConstraints(maxWidth: 350),
@@ -222,7 +221,7 @@ class _LoginScreen2State extends State<LoginScreen2> {
     // Se ajusta el padding para que el contenedor inicie desde el borde izquierdo
     padding: const EdgeInsets.fromLTRB(0, 10, 20, 10),
     child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         // El saludo "Hola!" a la izquierda
         Container(
@@ -256,7 +255,7 @@ class _LoginScreen2State extends State<LoginScreen2> {
           ),
         ),
         // El ícono de menú a la derecha
-        const Icon(Icons.menu, color: kDarkGreen, size: 30),
+        
       ],
     ),
   );

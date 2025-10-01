@@ -98,8 +98,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: const BoxDecoration(
                   color: kDarkGreen,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(40.0),
                     topRight: Radius.circular(40.0),
+                    
                   ),
                 ),
                 // SingleChildScrollView para evitar desbordamiento cuando aparece el teclado
@@ -247,22 +247,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Widget para construir la barra superior
   Widget _buildTopBar() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+      padding: const EdgeInsets.fromLTRB(20, 10, 0, 10),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const Icon(Icons.menu, color: kDarkGreen, size: 30),
+          
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 1),
             decoration: BoxDecoration(
               color: kDarkGreen,
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                bottomLeft: Radius.circular(30)
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Simula el logo con un ícono, reemplázalo con tu Image.asset
-                Image.asset('assets/2.png', height: 24, width: 24), // Asegúrate de tener tu logo en assets
+                Image.asset('assets/2.png', scale: 7,), // Asegúrate de tener tu logo en assets
                 const SizedBox(width: 8),
                 const Text(
                   'Hola!',
