@@ -1,6 +1,7 @@
 import 'package:appnativa/screens/login2.dart';
 import 'package:appnativa/screens/register.dart';
 import 'package:appnativa/screens/welcomeScreen.dart';
+import 'package:appnativa/screens/menuscreen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         '/welcomeScreen': (context) => const WelcomeScreen(),
         '/register': (context) => const RegisterScreen(),
         '/login': (context) => const LoginScreen2(),
+        '/menu': (context) => const MenuScreen(),
       },
     );
   }

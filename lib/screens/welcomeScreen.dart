@@ -136,6 +136,16 @@ class WelcomeScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/register');
                     },
                   ),
+                  const SizedBox(height: 15),
+                  _botonPrincipal(
+                    context,
+                    "Ir al menú",
+                    const Color(
+                        0xFF4CAF50), // Verde diferente para distinguirlo
+                    () {
+                      Navigator.pushNamed(context, '/menu');
+                    },
+                  ),
                 ],
               ),
             ),

@@ -16,6 +16,7 @@ class LoginScreen2 extends StatefulWidget {
 class _LoginScreen2State extends State<LoginScreen2> {
   final _formLoginKey = GlobalKey<FormState>();
 
+  // Controladores para los campos de inicio de sesión
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
 
