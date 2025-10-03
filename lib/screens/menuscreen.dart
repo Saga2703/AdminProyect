@@ -1,7 +1,84 @@
+import 'dart:io'; // <- CORREGIDO
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-class MenuScreen extends StatelessWidget {
+// --- PASO 1: Convertir a StatefulWidget ---
+class MenuScreen extends StatefulWidget {
   const MenuScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  // --- PASO 2: Mover variables y lógica al State ---
+  File? _selectedImage;
+
+  // Función para abrir la galería/cámara
+  void _showImagePickerOption() {
+    showModalBottomSheet(
+      backgroundColor: Colors.teal[50], // Un color más acorde a la paleta
+      context: context,
+      builder: (builder) {
+        return Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 5,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildPickerOption(
+                  icon: Icons.photo_library,
+                  label: 'Galería',
+                  onTap: () => _pickImage(ImageSource.gallery),
+                ),
+                _buildPickerOption(
+                  icon: Icons.camera_alt,
+                  label: 'Cámara',
+                  onTap: () => _pickImage(ImageSource.camera),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Función unificada para seleccionar imagen
+  Future<void> _pickImage(ImageSource source) async {
+    // Cierra el BottomSheet primero
+    Navigator.of(context).pop();
+
+    final XFile? returnImage = await ImagePicker().pickImage(source: source);
+    if (returnImage == null) return;
+
+    setState(() {
+      _selectedImage = File(returnImage.path);
+    });
+  }
+
+  // Helper para construir los botones del BottomSheet
+  Widget _buildPickerOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 50, color: const Color(0xFF004D40)),
+            const SizedBox(height: 8),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +89,7 @@ class MenuScreen extends StatelessWidget {
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFF004D40),
-              Color(0xFF80CBC4)
-            ], // verde oscuro → verde claro
+            colors: [Color(0xFF004D40), Color(0xFF80CBC4)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -23,10 +97,8 @@ class MenuScreen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // Texto + botón cerrar
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -46,43 +118,41 @@ class MenuScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 50),
-
-              // Fila de botones redondos
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
+                children: [
                   _MenuButton(
                     icon: Icons.dashboard,
                     label: 'Feed de\nbusquedas',
-                    route: '/feed',
+                    onTap: () => Navigator.pushNamed(context, '/feed'),
                   ),
                   _MenuButton(
                     icon: Icons.camera_alt,
                     label: 'Scanner\nNativa',
-                    route: '/scanner',
+                    onTap: _showImagePickerOption,
                   ),
                   _MenuButton(
                     icon: Icons.info,
                     label: 'Pendiente',
-                    route: '/pendiente',
+                    onTap: () => Navigator.pushNamed(context, '/pendiente'),
                   ),
                 ],
               ),
-
               const Spacer(),
-
-              // Avatar usuario
               Column(
-                children: const [
+                children: [
                   CircleAvatar(
                     radius: 36,
                     backgroundColor: Colors.white24,
-                    child: Icon(Icons.person, size: 40, color: Colors.white),
+                    backgroundImage:
+                        _selectedImage != null ? FileImage(_selectedImage!) : null,
+                    child: _selectedImage == null
+                        ? const Icon(Icons.person, size: 40, color: Colors.white)
+                        : null,
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 8),
+                  const Text(
                     'Nombre_Usuario',
                     style: TextStyle(
                       fontSize: 16,
@@ -90,7 +160,7 @@ class MenuScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                 ],
               ),
             ],
@@ -101,15 +171,16 @@ class MenuScreen extends StatelessWidget {
   }
 }
 
+// --- PASO 4: Modificar _MenuButton para que acepte una función ---
 class _MenuButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String route;
+  final VoidCallback onTap;
 
   const _MenuButton({
     required this.icon,
     required this.label,
-    required this.route,
+    required this.onTap,
   });
 
   @override
@@ -117,9 +188,7 @@ class _MenuButton extends StatelessWidget {
     return Column(
       children: [
         InkWell(
-          onTap: () {
-            Navigator.pushNamed(context, route);
-          },
+          onTap: onTap,
           borderRadius: BorderRadius.circular(50),
           child: Container(
             width: 80,
