@@ -29,6 +29,11 @@ class _MenuScreenState extends State<MenuScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildPickerOption(
+                  icon: Icons.photo_library,
+                  label: 'Galería',
+                  onTap: () => _pickImage(ImageSource.gallery),
+                ),
+                _buildPickerOption(
                   icon: Icons.camera_alt,
                   label: 'Cámara',
                   onTap: () => _pickImage(ImageSource.camera),
