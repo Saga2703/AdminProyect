@@ -8,7 +8,7 @@ const Color kLightGreen = Color(0xFFC4E4C6);
 const Color kBackgroundGreen = Color(0xFFF0F7F1);
 
 class CollectionScreen extends StatefulWidget {
-  const CollectionScreen({Key? key}) : super(key: key);
+  const CollectionScreen({super.key});
 
   @override
   State<CollectionScreen> createState() => _CollectionScreenState();

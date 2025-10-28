@@ -20,52 +20,30 @@ class PlantInfo {
 // ACTUALIZA ESTO con las clases reales de tu modelo
 class PlantDatabase {
   static final Map<String, PlantInfo> plantInfo = {
-    'planta': PlantInfo(
-      commonName: 'Planta Genérica',
-      scientificName: 'Plantae sp.',
-      description: 'Una planta detectada por el sistema. Actualiza esta información con datos específicos de tu modelo.',
-      care: 'Varía según la especie. Asegúrate de identificar la planta específica.',
-      lightNeeds: 'Luz indirecta a directa, según especie',
-      waterNeeds: 'Riego moderado',
+    'garambullo': PlantInfo(
+      commonName: 'Garambullo',
+      scientificName: 'Myrtillocactus geometrizans',
+      description:
+          'El garambullo es un cactus columnar originario del altiplano mexicano. Produce pequeños frutos de color morado comestibles y ricos en antioxidantes. Es una planta muy resistente a la sequía y al calor.',
+      care:
+          'Requiere un suelo arenoso con buen drenaje. Evita el exceso de riego y las heladas prolongadas. Puede podarse para controlar su crecimiento.',
+      lightNeeds: 'Pleno sol durante todo el día',
+      waterNeeds: 'Riego escaso; solo cuando el sustrato esté completamente seco',
     ),
-    
-    // EJEMPLOS - Reemplaza con tus clases reales
-    'rosa': PlantInfo(
-      commonName: 'Rosa',
-      scientificName: 'Rosa spp.',
-      description: 'Las rosas son plantas ornamentales muy populares, conocidas por sus hermosas flores y fragancia.',
-      care: 'Requiere poda regular, fertilización y protección contra plagas.',
-      lightNeeds: 'Pleno sol (6-8 horas diarias)',
-      waterNeeds: 'Riego profundo 2-3 veces por semana',
-    ),
-    
-    'girasol': PlantInfo(
-      commonName: 'Girasol',
-      scientificName: 'Helianthus annuus',
-      description: 'Planta anual de gran tamaño con flores grandes y brillantes que siguen el movimiento del sol.',
-      care: 'Planta de bajo mantenimiento. Tutorizar si es muy alta.',
-      lightNeeds: 'Pleno sol todo el día',
-      waterNeeds: 'Riego regular, especialmente en época de floración',
-    ),
-    
-    'cactus': PlantInfo(
-      commonName: 'Cactus',
-      scientificName: 'Cactaceae family',
-      description: 'Plantas suculentas adaptadas a ambientes áridos con hojas modificadas en espinas.',
-      care: 'Muy bajo mantenimiento. Evitar exceso de humedad.',
-      lightNeeds: 'Pleno sol o luz brillante',
-      waterNeeds: 'Riego escaso, dejar secar entre riegos',
-    ),
-    
-    'suculenta': PlantInfo(
-      commonName: 'Suculenta',
-      scientificName: 'Varios géneros',
-      description: 'Plantas con tejidos carnosos que almacenan agua, ideales para principiantes.',
-      care: 'Bajo mantenimiento. Sustrato con buen drenaje.',
-      lightNeeds: 'Luz brillante indirecta',
-      waterNeeds: 'Riego moderado, dejar secar sustrato entre riegos',
+
+    'mezquite': PlantInfo(
+      commonName: 'Mezquite',
+      scientificName: 'Prosopis laevigata',
+      description:
+          'El mezquite es un árbol nativo de zonas áridas y semiáridas de México. Se caracteriza por su madera dura, su resistencia a la sequía y su capacidad para fijar nitrógeno al suelo. Produce vainas dulces aprovechables como alimento y forraje.',
+      care:
+          'Crece mejor en suelos secos o ligeramente alcalinos. No requiere fertilización. Podar ramas secas o dañadas ocasionalmente.',
+      lightNeeds: 'Pleno sol',
+      waterNeeds:
+          'Riego muy bajo; sobrevive solo con lluvias estacionales una vez establecido',
     ),
   };
+
 
   static PlantInfo getInfo(String label) {
     // Si la etiqueta existe en el mapa, devuélvela

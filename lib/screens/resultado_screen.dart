@@ -13,7 +13,7 @@ class ResultadoScreen extends StatefulWidget {
   final File imageFile;
   final List<Detection> detections;
 
-  const ResultadoScreen({Key? key, required this.imageFile, required this.detections}) : super(key: key);
+  const ResultadoScreen({super.key, required this.imageFile, required this.detections});
 
   @override
   State<ResultadoScreen> createState() => _ResultadoScreenState();
@@ -346,7 +346,7 @@ class _ResultadoScreenState extends State<ResultadoScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  ...widget.detections.map((d) => _detectionTile(d)).toList(),
+                                  ...widget.detections.map((d) => _detectionTile(d)),
                                 ],
                               ),
                             ),

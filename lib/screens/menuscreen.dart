@@ -10,7 +10,7 @@ const Color kDarkGreen = Color(0xFF0A5C48);
 const Color kLightGreen = Color(0xFFC4E4C6);
 
 class MenuScreen extends StatefulWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+  const MenuScreen({super.key});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
@@ -103,9 +103,9 @@ class _MenuScreenState extends State<MenuScreen> {
       ),
       body: Center(
         child: _loading
-            ? Column(
+            ? const Column(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   CircularProgressIndicator(color: kDarkGreen),
                   SizedBox(height: 16),
                   Text(
