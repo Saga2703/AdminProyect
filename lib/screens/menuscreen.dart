@@ -1,8 +1,14 @@
-import 'dart:io'; // <- CORREGIDO
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../services/yolo_service.dart';
+import '../models/detection.dart';
+import 'resultado_screen.dart';
+import 'collection_screen.dart';
 
-// --- PASO 1: Convertir a StatefulWidget ---
+const Color kDarkGreen = Color(0xFF0A5C48);
+const Color kLightGreen = Color(0xFFC4E4C6);
+
 class MenuScreen extends StatefulWidget {
   const MenuScreen({Key? key}) : super(key: key);
 
@@ -11,70 +17,62 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
-  // --- PASO 2: Mover variables y lógica al State ---
-  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+  bool _loading = false;
 
-  // Función para abrir la galería/cámara
-  void _showImagePickerOption() {
-    showModalBottomSheet(
-      backgroundColor: Colors.teal[50], // Un color más acorde a la paleta
-      context: context,
-      builder: (builder) {
-        return Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 5,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildPickerOption(
-                  icon: Icons.photo_library,
-                  label: 'Galería',
-                  onTap: () => _pickImage(ImageSource.gallery),
-                ),
-                _buildPickerOption(
-                  icon: Icons.camera_alt,
-                  label: 'Cámara',
-                  onTap: () => _pickImage(ImageSource.camera),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // Función unificada para seleccionar imagen
   Future<void> _pickImage(ImageSource source) async {
-    // Cierra el BottomSheet primero
-    Navigator.of(context).pop();
+    final XFile? picked = await _picker.pickImage(source: source, imageQuality: 85);
+    if (picked == null) return;
 
-    final XFile? returnImage = await ImagePicker().pickImage(source: source);
-    if (returnImage == null) return;
+    setState(() => _loading = true);
 
-    setState(() {
-      _selectedImage = File(returnImage.path);
-    });
+    final file = File(picked.path);
+    try {
+      // Cargar modelo (si no está cargado)
+      await YoloService().loadModel();
+
+      // Predecir
+      final List<Detection> detections = await YoloService().predict(file, threshold: 0.35);
+
+      // Navegar a pantalla de resultados
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ResultadoScreen(
+            imageFile: file,
+            detections: detections,
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error procesando imagen: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error procesando la imagen: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
-  // Helper para construir los botones del BottomSheet
-  Widget _buildPickerOption({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 50, color: const Color(0xFF004D40)),
-            const SizedBox(height: 8),
-            Text(label),
-          ],
+  Widget _actionButton(IconData icon, String label, VoidCallback onTap, {Color? color}) {
+    return SizedBox(
+      width: 200,
+      child: ElevatedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, size: 24),
+        label: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color ?? kDarkGreen,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 3,
         ),
       ),
     );
@@ -83,133 +81,151 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF004D40), Color(0xFF80CBC4)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+      backgroundColor: kLightGreen.withOpacity(0.2),
+      appBar: AppBar(
+        title: const Text(
+          'Detector de Plantas',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '¿A donde quieres ir?...',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
+        backgroundColor: kDarkGreen,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.collections_bookmark),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CollectionScreen()),
+              );
+            },
+            tooltip: 'Ver mi colección',
+          ),
+        ],
+      ),
+      body: Center(
+        child: _loading
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  CircularProgressIndicator(color: kDarkGreen),
+                  SizedBox(height: 16),
+                  Text(
+                    'Procesando imagen...',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Esto puede tomar unos segundos',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              )
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Logo o icono principal
+                      Container(
+                        padding: const EdgeInsets.all(30),
+                        decoration: BoxDecoration(
+                          color: kDarkGreen.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.local_florist,
+                          size: 80,
+                          color: kDarkGreen,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close,
-                          color: Colors.white, size: 28),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
+                      const SizedBox(height: 24),
+
+                      // Título
+                      const Text(
+                        'Identifica tus plantas',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: kDarkGreen,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Subtítulo
+                      Text(
+                        'Toma una foto o selecciona una imagen\npara identificar la planta',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey[700],
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Botones de acción
+                      _actionButton(
+                        Icons.camera_alt,
+                        'Tomar Foto',
+                        () => _pickImage(ImageSource.camera),
+                      ),
+                      const SizedBox(height: 16),
+                      _actionButton(
+                        Icons.photo_library,
+                        'Desde Galería',
+                        () => _pickImage(ImageSource.gallery),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Divider
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            Expanded(child: Divider(color: Colors.grey[400])),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                'o',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ),
+                            Expanded(child: Divider(color: Colors.grey[400])),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Botón de colección
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const CollectionScreen()),
+                          );
+                        },
+                        icon: const Icon(Icons.collections_bookmark, color: kDarkGreen),
+                        label: const Text(
+                          'Ver Mi Colección',
+                          style: TextStyle(
+                            color: kDarkGreen,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                          side: const BorderSide(color: kDarkGreen, width: 2),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 50),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _MenuButton(
-                    icon: Icons.dashboard,
-                    label: 'Feed de\nbusquedas',
-                    onTap: () => Navigator.pushNamed(context, '/feed'),
-                  ),
-                  _MenuButton(
-                    icon: Icons.camera_alt,
-                    label: 'Scanner\nNativa',
-                    onTap: _showImagePickerOption,
-                  ),
-                  _MenuButton(
-                    icon: Icons.info,
-                    label: 'Pendiente',
-                    onTap: () => Navigator.pushNamed(context, '/pendiente'),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Column(
-                children: [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: Colors.white24,
-                    backgroundImage:
-                        _selectedImage != null ? FileImage(_selectedImage!) : null,
-                    child: _selectedImage == null
-                        ? const Icon(Icons.person, size: 40, color: Colors.white)
-                        : null,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Nombre_Usuario',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
-    );
-  }
-}
-
-// --- PASO 4: Modificar _MenuButton para que acepte una función ---
-class _MenuButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _MenuButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(50),
-          child: Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 3),
-            ),
-            child: Icon(icon, size: 36, color: Colors.white),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-          ),
-        ),
-      ],
     );
   }
 }

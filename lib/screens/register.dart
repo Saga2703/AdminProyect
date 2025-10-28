@@ -122,10 +122,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         
                         // Texto para navegar a la pantalla de inicio de sesión
                         GestureDetector(
-                           onTap: () {
+                            onTap: () {
                               // Navegar a la pantalla de login (asegúrate de tener una ruta llamada '/login')
                               Navigator.pushNamed(context, '/login');
-                           },
+                            },
                           child: const Text.rich(
                             TextSpan(
                               text: 'Si ya estas registrado ',
@@ -168,7 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                           style: const TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
                           validator: validateEmail,
                           decoration: _buildInputDecoration(hintText: 'anahi@gmail.com'),
                         ),
@@ -179,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 8.0),
                         TextFormField(
                           controller: _passwordController,
-                           style: const TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: kDarkGreen, fontWeight: FontWeight.bold),
                           obscureText: _isPasswordObscured,
                           validator: validatePassword,
                           decoration: _buildInputDecoration(
@@ -254,7 +254,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 1),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: kDarkGreen,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30),
